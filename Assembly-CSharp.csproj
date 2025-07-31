@@ -48,13 +48,32 @@
     <Analyzer Include="D:\Unity\6000.0.52f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\#Game\Scripts\Enemy\FieldOfView.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\EnemyController.cs" />
+    <Compile Include="Assets\#Game\Scripts\Scriptable Object\StateFinished.cs" />
+    <Compile Include="Assets\#Game\Scripts\State Machine\StateManager.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyPatrol.cs" />
     <Compile Include="Assets\#Game\Scripts\Player\Base\PlayerMove.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyInvestigate.cs" />
+    <Compile Include="Assets\#Game\Scripts\Interface\Interface.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\EnemyBrain.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyMove.cs" />
+    <Compile Include="Assets\#Game\Scripts\Scriptable Object\TransitionCondition.cs" />
+    <Compile Include="Assets\#Game\Scripts\State Machine\BaseState.cs" />
     <Compile Include="Assets\#Game\Scripts\Player\PlayerController.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyCombat.cs" />
     <Compile Include="Assets\StarterAssets\ThirdPersonController\Scripts\ThirdPersonController.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\SoundDetection.cs" />
+    <Compile Include="Assets\#Game\Scripts\Sound\SoundSystem.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyBaseState.cs" />
+    <Compile Include="Assets\#Game\Scripts\Scriptable Object\WaitingTime.cs" />
+    <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyAlert.cs" />
+    <Compile Include="Assets\#Game\Scripts\Scriptable Object\SoundHearing.cs" />
     <Compile Include="Assets\#Game\Scripts\Player\PlayerInput.cs" />
     <Compile Include="Assets\StarterAssets\ThirdPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
+    <Compile Include="Assets\#Game\Scripts\Scriptable Object\PlayerOnCaught.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1141,6 +1160,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.Collections.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="TNRD.SerializableInterface">
+      <HintPath>Library\ScriptAssemblies\TNRD.SerializableInterface.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
       <Private>False</Private>
@@ -1213,6 +1236,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.Burst.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="TNRD.SerializableInterface.Editor">
+      <HintPath>Library\ScriptAssemblies\TNRD.SerializableInterface.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Burst">
       <HintPath>Library\ScriptAssemblies\Unity.Burst.dll</HintPath>
       <Private>False</Private>
@@ -1243,6 +1270,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="NaughtyAttributes.Core.csproj">
+      <Project>{2C2A3AA4-1835-0FF4-E364-7047D4E44915}</Project>
+      <Name>NaughtyAttributes.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="NaughtyAttributes.Test.csproj">
+      <Project>{04A262F2-B75F-2E1F-F38E-E9C8F3502E6E}</Project>
+      <Name>NaughtyAttributes.Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="NaughtyAttributes.Editor.csproj">
+      <Project>{57E32EC2-87EC-AAB3-759C-C5FCB397F2A9}</Project>
+      <Name>NaughtyAttributes.Editor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
