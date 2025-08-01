@@ -5,67 +5,71 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Combat", menuName = "SO/Enemy State/Combat")]
     public class EnemyCombat : EnemyBaseState
     {
-        private bool isMovingToLastKnown;
+        [SerializeField] private float radiusAwarenessInfluence = 10f;
 
-        public override void Initialize(EnemyBrain brain)
+        public override void EnterState(EnemyBrain brain)
         {
-            base.Initialize(brain);
-            State = EnemyBrain.EnemyState.Combat;
+            base.EnterState(brain);
+            brain.stateMemory.isMovingToLastKnown = false;
+            TryChaseTarget(brain);
+            //Debug.LogError(brain.name + ": Enter Shooting");
+            brain.HasBeenAlerted = true;
         }
 
-        public override void EnterState()
+        public override void UpdateState(EnemyBrain brain)
         {
-            base.EnterState();
-            TryChaseTarget();
-            isMovingToLastKnown = false;
-        }
+            base.UpdateState(brain);
 
-        public override void UpdateState()
-        {
-            base.UpdateState();
+            EnemyAwarenessSystem.AlertNearbyEnemies(brain, brain.suspiciousLocation, radiusAwarenessInfluence);
+            brain.Controller.LookAt(brain.suspiciousLocation);
+
             if (brain.AttackRange.TargetOnCaught != null)
             {
-                IsStateFinished = false;
+                brain.stateMemory.isMovingToLastKnown = false;
                 var target = brain.AttackRange.TargetOnCaught.transform;
-                isMovingToLastKnown = false;
 
                 brain.Controller.CancelCurrentMove();
                 brain.Controller.LookAt(target.position);
                 brain.Controller.Shooting(true);
 
                 brain.SetSuspiciousLocation(target.position);
+                brain.stateMemory.IsStateFinished = false;
 
                 return;
             }
 
-            TryChaseTarget();
+            TryChaseTarget(brain);
         }
 
-        private void TryChaseTarget()
+        private void TryChaseTarget(EnemyBrain brain)
         {
-            if (isMovingToLastKnown) return;
-            //Debug.Log("mantap");
+            if (brain.stateMemory.isMovingToLastKnown) return;
 
-            isMovingToLastKnown = true;
+            brain.stateMemory.isMovingToLastKnown = true;
             brain.Controller.Shooting(false);
+            brain.Controller.LookAt(brain.suspiciousLocation);
             brain.Controller.MoveTowards(brain.suspiciousLocation).OnArrive(() =>
             {
-                IsStateFinished = true;
-                //Debug.Log("Combat Finished");
+                brain.stateMemory.IsStateFinished = true;
             });
         }
 
-        public override void PauseState() { }
-        public override void ResumeState()
+        public override void PauseState(EnemyBrain brain)
         {
-            isMovingToLastKnown = false;
-            TryChaseTarget();
+            base.PauseState(brain);
         }
 
-        public override void ExitState()
+        public override void ResumeState(EnemyBrain brain)
         {
-            isMovingToLastKnown = false;
-            //Debug.Log("exit combat");
+            base.ResumeState(brain);
+            brain.stateMemory.isMovingToLastKnown = false;
+            TryChaseTarget(brain);
+        }
+
+        public override void ExitState(EnemyBrain brain)
+        {
+            brain.stateMemory.isMovingToLastKnown = false;
+            brain.Controller.Shooting(false);
         }
     }
 }

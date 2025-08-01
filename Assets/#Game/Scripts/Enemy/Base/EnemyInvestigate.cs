@@ -7,102 +7,110 @@ namespace IGI.Enemy
     {
         [SerializeField] private float radiusInvestigate = 5f;
 
-        private Vector3[] investigatePoints;
-        private int currentIndex;
-        private bool isWaiting;
-
-        private float scanTimer;
-        private Vector3[] lookDirections;
-        private int lookIndex;
-
-        public override void Initialize(EnemyBrain brain)
+        public override void EnterState(EnemyBrain brain)
         {
-            base.Initialize(brain);
-            State = EnemyBrain.EnemyState.Investigate;
+            base.EnterState(brain);
+
+            var mem = brain.stateMemory;
+            mem.currentIndex = 0;
+            mem.isWaiting = false;
+
+            GenerateInvestigatePoints(brain);
+            MoveToNextPoint(brain);
         }
 
-        public override void EnterState()
+        public override void UpdateState(EnemyBrain brain)
         {
-            base.EnterState();
-            currentIndex = 0;
-            GenerateInvestigatePoints();
-            MoveToNextPoint();
-        }
+            base.UpdateState(brain);
 
-        public override void UpdateState()
-        {
-            base.UpdateState();
-            if (isWaiting)
+            var mem = brain.stateMemory;
+
+            if (mem.isWaiting)
             {
-                scanTimer += Time.deltaTime;
+                mem.scanTimer += Time.deltaTime;
 
                 brain.Controller.LookAt(
-                    brain.transform.position + lookDirections[lookIndex] * 2f
+                    brain.transform.position + mem.lookDirections[mem.lookIndex] * 2f
                 );
 
-                if (scanTimer >= 1.2f)
+                if (mem.scanTimer >= 1.2f)
                 {
-                    scanTimer = 0f;
-                    lookIndex++;
+                    mem.scanTimer = 0f;
+                    mem.lookIndex++;
 
-                    if (lookIndex >= lookDirections.Length)
+                    if (mem.lookIndex >= mem.lookDirections.Length)
                     {
-                        isWaiting = false;
-                        MoveToNextPoint();
+                        mem.isWaiting = false;
+                        MoveToNextPoint(brain);
                     }
                 }
             }
         }
 
-        private void GenerateInvestigatePoints()
+        private void GenerateInvestigatePoints(EnemyBrain brain)
         {
-            investigatePoints = new Vector3[3];
+            var mem = brain.stateMemory;
+            mem.investigatePoints = new Vector3[3];
             Vector3 center = brain.suspiciousLocation;
 
-            for (int i = 0; i < investigatePoints.Length; i++)
+            for (int i = 0; i < mem.investigatePoints.Length; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * radiusInvestigate;
                 Vector3 point = center + new Vector3(offset.x, 0, offset.y);
-                investigatePoints[i] = point;
+                mem.investigatePoints[i] = point;
             }
         }
 
-        private void MoveToNextPoint()
+        private void MoveToNextPoint(EnemyBrain brain)
         {
-            if (currentIndex >= investigatePoints.Length)
+            var mem = brain.stateMemory;
+
+            if (mem.currentIndex >= mem.investigatePoints.Length)
             {
-                IsStateFinished = true;
-                currentIndex = 0;
+                brain.stateMemory.IsStateFinished = true;
+                mem.currentIndex = 0;
+                return;
             }
 
-            Vector3 next = investigatePoints[currentIndex++];
+            Vector3 next = mem.investigatePoints[mem.currentIndex++];
             brain.Controller.MoveTowards(next).OnArrive(() =>
             {
-                BeginLookAround();
+                BeginLookAround(brain);
             });
         }
 
-        private void BeginLookAround()
+        private void BeginLookAround(EnemyBrain brain)
         {
-            isWaiting = true;
-            scanTimer = 0f;
-            lookIndex = 0;
+            var mem = brain.stateMemory;
+            mem.isWaiting = true;
+            mem.scanTimer = 0f;
+            mem.lookIndex = 0;
 
-            lookDirections = new Vector3[3];
+            mem.lookDirections = new Vector3[3];
             float[] angles = { -45f, 0f, 45f };
 
             for (int i = 0; i < angles.Length; i++)
             {
                 Vector3 dir = Quaternion.Euler(0, angles[i], 0) * brain.transform.forward;
-                lookDirections[i] = dir.normalized;
+                mem.lookDirections[i] = dir.normalized;
             }
         }
 
-        public override void PauseState() { }
-        public override void ResumeState() { MoveToNextPoint(); }
-
-        public override void ExitState()
+        public override void PauseState(EnemyBrain brain)
         {
+            base.PauseState(brain);
+            brain.Controller.CancelCurrentMove();
+        }
+
+        public override void ResumeState(EnemyBrain brain)
+        {
+            base.ResumeState(brain);
+            MoveToNextPoint(brain);
+        }
+
+        public override void ExitState(EnemyBrain brain)
+        {
+            brain.Controller.CancelCurrentMove();
         }
     }
 }

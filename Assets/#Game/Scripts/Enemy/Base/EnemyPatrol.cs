@@ -5,29 +5,17 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Patrol", menuName = "SO/Enemy State/Patrol")]
     public class EnemyPatrol : EnemyBaseState
     {
-        private Transform[] waypoints;
+        [SerializeField] private float waitDuration = 3f;
 
-        private int currentWaypointIndex = 0;
-        private bool isWaiting = false;
-        private float waitTimer, waitDuration = 0f;
-
-        public override void Initialize(EnemyBrain brain)
+        public override void EnterState(EnemyBrain brain)
         {
-            base.Initialize(brain);
-            State = EnemyBrain.EnemyState.Patrol;
-            waypoints = brain.Controller.Waypoints;
-            waitDuration = brain.Controller.IdleDuration;
+            base.EnterState(brain);
+            brain.stateMemory.currentWaypointIndex = 0;
+            brain.stateMemory.waitTimer = 0f;
+            MoveToNextWaypoint(brain);
         }
 
-        public override void EnterState()
-        {
-            base.EnterState();
-            currentWaypointIndex = 0;
-            waitTimer = 0f;
-            MoveToNextWaypoint();
-        }
-
-        public override void ExitState()
+        public override void ExitState(EnemyBrain brain)
         {
         }
 
@@ -39,49 +27,50 @@ namespace IGI.Enemy
         //    return State;
         //}
 
-        public override void UpdateState()
+        public override void UpdateState(EnemyBrain brain)
         {
-            base.UpdateState();
+            base.UpdateState(brain);
 
-            if (isWaiting)
+            if (brain.stateMemory.patrolIsWaiting)
             {
-                waitTimer += Time.deltaTime;
-                if (waitTimer >= waitDuration)
+                brain.stateMemory.waitTimer += Time.deltaTime;
+                if (brain.stateMemory.waitTimer >= waitDuration)
                 {
-                    waitTimer = 0f;
-                    isWaiting = false;
-                    MoveToNextWaypoint();
+                    brain.stateMemory.waitTimer = 0f;
+                    brain.stateMemory.patrolIsWaiting = false;
+                    MoveToNextWaypoint(brain);
                 }
             }      
         }
 
-        private void MoveToNextWaypoint()
+        private void MoveToNextWaypoint(EnemyBrain brain)
         {
-            if (waypoints.Length == 0) return;
+            if (brain.Controller.Waypoints.Length == 0) return;
 
-            brain.Controller.MoveTowards(waypoints[currentWaypointIndex].position)
+            brain.Controller.MoveTowards(brain.Controller.Waypoints[brain.stateMemory.currentWaypointIndex].position)
                 .OnArrive(() =>
                 {
-                    waitTimer = 0f;
-                    isWaiting = true;
+                    brain.stateMemory.waitTimer = 0f;
+                    brain.stateMemory.patrolIsWaiting = true;
 
-                    currentWaypointIndex++;
-                    if (currentWaypointIndex >= waypoints.Length)
+                    brain.stateMemory.currentWaypointIndex++;
+                    if (brain.stateMemory.currentWaypointIndex >= brain.Controller.Waypoints.Length)
                     {
-                        currentWaypointIndex = 0;
-                        IsStateFinished = true;
+                        brain.stateMemory.currentWaypointIndex = 0;
+                        brain.stateMemory.IsStateFinished = true;
                     }
                 });
         }
 
-        public override void PauseState()
+        public override void PauseState(EnemyBrain brain)
         {
-            
+            base .PauseState(brain);
         }
 
-        public override void ResumeState()
+        public override void ResumeState(EnemyBrain brain)
         {
-            MoveToNextWaypoint();
+            base.ResumeState(brain);
+            MoveToNextWaypoint(brain);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace IGI.Transition
         public override bool TrueCondition(EnemyBrain brain)
         {
             if(duration < 0) return false;
-            if(brain.CurrentState.baseState.timeInCurrentState >= duration) return true;
+            if(brain.stateMemory.timeInCurrentState >= duration) return true;
             return false;
         }
     }

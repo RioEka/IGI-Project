@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace IGI.Enemy
 {
-    //[ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class FieldOfView : MonoBehaviour, ITransition
     {
         [Range(.1f, 180)]
@@ -20,7 +20,6 @@ namespace IGI.Enemy
         private Mesh viewMesh;
         private MeshFilter viewMeshFilter;
         private Collider[] targetsBuffer = new Collider[5];
-        private Transform[] visibleTargets = new Transform[5];
 
         private void Awake()
         {
@@ -30,7 +29,7 @@ namespace IGI.Enemy
             viewMeshFilter.mesh = viewMesh;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             DrawFieldOfView();
             DetectTarget();

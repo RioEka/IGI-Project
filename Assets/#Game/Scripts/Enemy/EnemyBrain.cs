@@ -23,6 +23,8 @@ namespace IGI.Enemy
         public Vector3 suspiciousLocation {  get; private set; }
         //public Vector3? CachedAlertLocation { get; private set; }
 
+        public StateMemory stateMemory { get; private set; }
+
         public bool HasBeenAlerted { get; set; }
 
         private EnemyController controller;
@@ -35,27 +37,43 @@ namespace IGI.Enemy
         {
             controller = GetComponent<EnemyController>();
             soundDetection = GetComponent<SoundDetection>();
+            stateMemory = new();
 
-            foreach (var item in stateVariants)
-            {
-                item.baseState.Initialize(this);
-                states.Add(item.baseState.State, item.baseState);
-            }
+            //foreach (var item in stateVariants)
+            //{
+            //    //item.baseState.Initialize(this);
+            //    states.Add(item.baseState.State, item.baseState);
+            //}
 
             currentAIState = stateVariants[0];
             currentState = currentAIState.baseState;
         }
 
+        private void OnEnable()
+        {
+            EnemyAwarenessSystem.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            EnemyAwarenessSystem.Unregister(this);
+        }
+
         private void Start()
         {
-            currentAIState.baseState.EnterState();
+            currentAIState.baseState.EnterState(this);
         }
 
         private void Update()
         {
-            Debug.Log(currentAIState.baseState.name);
+            Debug.Log(gameObject.name + ": " + currentAIState.baseState.name);
 
-            currentAIState.baseState.UpdateState();
+            if (currentAIState == null)
+            {
+                Debug.Log($"[{gameObject.name}] Current AI State is Null. Nothing state to play");
+                return;
+            }
+            currentAIState.baseState.UpdateState(this);
             currentAIState.TickTransitions(this);
         }
 
@@ -69,17 +87,22 @@ namespace IGI.Enemy
 
             if (currentAIState.Equals(stateVariants[index])) return;
 
-            currentAIState.baseState.ExitState();
+            currentAIState.baseState.ExitState(this);
 
             currentAIState = stateVariants[index];
             currentState = currentAIState.baseState;
 
-            currentAIState.baseState.EnterState();
+            currentAIState.baseState.EnterState(this);
         }
 
-        public void Alert(Vector3 position)
+        private int? GetStateIndex(EnemyState state)
         {
-
+            for (int i = 0; i < stateVariants.Length; i++)
+            {
+                if (stateVariants[i].baseState.State == state)
+                    return i;
+            }
+            return null;
         }
 
         public void SetTask(AITask task, bool allowInterruption = true)
@@ -93,7 +116,7 @@ namespace IGI.Enemy
         private void ExecuteTask(AITask task)
         {
             pendingState = currentAIState;
-            pendingState.baseState.PauseState();
+            pendingState.baseState.PauseState(this);
             currentAIState = null;
 
             controller.CancelCurrentMove();
@@ -106,7 +129,7 @@ namespace IGI.Enemy
         public void TaskCompleted()
         {
             currentAIState = pendingState;
-            currentAIState.baseState.ResumeState();
+            currentAIState.baseState.ResumeState(this);
             pendingState = null;
         }
 
@@ -118,6 +141,17 @@ namespace IGI.Enemy
                 pendingTask = null;
                 ExecuteTask(task);
             }
+        }
+
+        public void OnAlertedByAlly(Vector3 alertPosition)
+        {
+            if (currentAIState != null && currentAIState.baseState.State == EnemyState.Combat) return;
+
+            SetSuspiciousLocation(alertPosition);
+            HasBeenAlerted = true;
+
+            var alertIndex = GetStateIndex(EnemyState.Alert);
+            if (alertIndex.HasValue) TransitionToStateIndex(alertIndex.Value);
         }
 
         public void SetSuspiciousLocation(Vector3 location) => suspiciousLocation = location;
@@ -161,5 +195,30 @@ namespace IGI.Enemy
                 }
             }
         }
+    }
+
+    public class StateMemory
+    {
+        public float timeInCurrentState { get; set; }
+        public bool paused { get; set; }
+        public bool IsStateFinished { get; set; }
+
+        public int currentWaypointIndex { get; set; } = 0;
+        public float waitTimer { get; set; } = 0f;
+        public bool patrolIsWaiting { get; set; } = false;
+
+        public Vector3 alertPosition { get; set; }
+        public float idleTimer { get; set; }
+
+        public bool isMovingToLastKnown { get; set; }
+
+        public Vector3? targetIdlePosition { get; set; }
+
+        public Vector3[] investigatePoints { get; set; }
+        public int currentIndex { get; set; }
+        public bool isWaiting { get; set; }
+        public float scanTimer { get; set; }
+        public Vector3[] lookDirections { get; set; }
+        public int lookIndex { get; set; }
     }
 }

@@ -4,29 +4,21 @@ namespace IGI.Enemy
 {
     public abstract class EnemyBaseState : BaseState<EnemyBrain.EnemyState>
     {
-        protected EnemyBrain brain { get; private set; }
-        protected FieldOfView FieldOfView { get; private set; }
-        protected FieldOfView AttackRange { get; private set; }
-
-        public float timeInCurrentState { get; protected set; }
-        public bool IsStateFinished { get; protected set; }
-
-        public virtual void Initialize(EnemyBrain brain)
+        public override void EnterState(EnemyBrain brain)
         {
-            this.brain = brain;
-            FieldOfView = brain.FieldOfView;
-            AttackRange = brain.AttackRange;
+            brain.stateMemory.IsStateFinished = false;
+            brain.stateMemory.timeInCurrentState = 0;
+            brain.stateMemory.paused = false;
         }
 
-        public override void EnterState()
+        public override void UpdateState(EnemyBrain brain)
         {
-            IsStateFinished = false;
-            timeInCurrentState = 0;
+            if (brain.stateMemory.paused) return;
+
+            brain.stateMemory.timeInCurrentState += UnityEngine.Time.deltaTime;
         }
 
-        public override void UpdateState() => timeInCurrentState += UnityEngine.Time.deltaTime;
-
-        public abstract void PauseState();
-        public abstract void ResumeState();
+        public virtual void PauseState(EnemyBrain brain) => brain.stateMemory.paused = true;
+        public virtual void ResumeState(EnemyBrain brain) => brain.stateMemory.paused = false;
     }
 }

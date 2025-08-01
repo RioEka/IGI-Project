@@ -1,4 +1,3 @@
-using IGI.Transition;
 using UnityEngine;
 
 namespace IGI.Enemy
@@ -6,76 +5,76 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Alert", menuName = "SO/Enemy State/Alert")]
     public class EnemyAlert : EnemyBaseState
     {
-        private Vector3 alertPosition;
-        private float idleTimer;
-
-        public override void Initialize(EnemyBrain brain)
+        public override void EnterState(EnemyBrain brain)
         {
-            base.Initialize(brain);
-            State = EnemyBrain.EnemyState.Alert;
-        }
-
-        public override void EnterState()
-        {
-            base.EnterState();
+            base.EnterState(brain);
 
             brain.Controller.CancelCurrentMove();
-            alertPosition = brain.suspiciousLocation;
-            idleTimer = 0f;
+            brain.stateMemory.alertPosition = brain.suspiciousLocation;
+            brain.stateMemory.idleTimer = 0f;
 
-            brain.Controller.LookAt(alertPosition);
+            Debug.Log(brain.name + "EnterAlert");
 
-            if (!brain.HasBeenAlerted)
+            brain.Controller.LookAt(brain.stateMemory.alertPosition);
+
+            if (brain.HasBeenAlerted)
             {
-            }
-            else
-            {
-                MoveToAlertLocation();
+                MoveToAlertLocation(brain);
             }
         }
 
-        public override void UpdateState()
+        public override void UpdateState(EnemyBrain brain)
         {
-            base.UpdateState();
+            base.UpdateState(brain);
+            var alertMem = brain.stateMemory;
+
             if (!brain.HasBeenAlerted)
             {
-                if ((brain.suspiciousLocation - alertPosition).sqrMagnitude > 0.5f)
-                {
-                    alertPosition = brain.suspiciousLocation;
-                }
+                //if ((brain.suspiciousLocation - alertMem.alertPosition).sqrMagnitude > 0.5f)
+                //{
+                //    alertMem.alertPosition = brain.suspiciousLocation;
+                //}
 
-                brain.Controller.LookAt(alertPosition);
+                brain.Controller.LookAt(brain.suspiciousLocation);
 
-                idleTimer += Time.deltaTime;
-                if (idleTimer >= brain.Controller.IdleDuration)
+                alertMem.idleTimer += Time.deltaTime;
+                if (alertMem.idleTimer >= brain.Controller.IdleDuration)
                 {
                     brain.HasBeenAlerted = true;
-                    MoveToAlertLocation();
+                    MoveToAlertLocation(brain);
                 }
             }
             else
             {
-                if ((brain.suspiciousLocation - alertPosition).sqrMagnitude > 0.5f)
-                {
-                    alertPosition = brain.suspiciousLocation;
-                    MoveToAlertLocation();
-                }
+                //if ((brain.suspiciousLocation - alertMem.alertPosition).sqrMagnitude > 0.5f)
+                //{
+                //    alertMem.alertPosition = brain.suspiciousLocation;
+                //}
+                    MoveToAlertLocation(brain);
             }
-
         }
 
-        private void MoveToAlertLocation()
+        private void MoveToAlertLocation(EnemyBrain brain)
         {
-            brain.Controller.MoveTowards(alertPosition).OnArrive(() =>
+            brain.Controller.MoveTowards(brain.suspiciousLocation).OnArrive(() =>
             {
-                IsStateFinished = true;
+                brain.stateMemory.IsStateFinished = true;
+                brain.Controller.LookAt(brain.suspiciousLocation);
             });
         }
 
-        public override void PauseState() { }
-        public override void ResumeState() { MoveToAlertLocation(); }
+        public override void PauseState(EnemyBrain brain)
+        {
+            base.PauseState(brain);
+        }
 
-        public override void ExitState()
+        public override void ResumeState(EnemyBrain brain)
+        {
+            base.ResumeState(brain);
+            MoveToAlertLocation(brain);
+        }
+
+        public override void ExitState(EnemyBrain brain)
         {
             brain.HasBeenAlerted = false;
         }

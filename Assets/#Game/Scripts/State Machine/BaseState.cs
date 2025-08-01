@@ -6,9 +6,9 @@ namespace IGI.StateMachine
     {
         public Estate State { get; protected set; }
 
-        public abstract void EnterState();
-        public abstract void UpdateState();
-        public abstract void ExitState();
+        public abstract void EnterState(Enemy.EnemyBrain brain);
+        public abstract void UpdateState(Enemy.EnemyBrain brain);
+        public abstract void ExitState(Enemy.EnemyBrain brain);
         public virtual Estate GetNextState() { return State; }
     }
 }

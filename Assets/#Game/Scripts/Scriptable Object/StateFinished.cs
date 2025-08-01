@@ -9,7 +9,7 @@ namespace IGI.Transition
     {
         public override bool TrueCondition(EnemyBrain brain)
         {
-            return brain.CurrentState.baseState.IsStateFinished;
+            return brain.stateMemory.IsStateFinished;
         }
     }
 }

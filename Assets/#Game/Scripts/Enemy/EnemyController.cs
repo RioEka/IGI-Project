@@ -69,6 +69,8 @@ namespace IGI.Enemy
 
         public EnemyMove MoveTowards(Vector3 destination)
         {
+            //Debug.Log(gameObject.name + ": Move Towards");
+
             if (move != null)
             {
                 Debug.LogWarning("[EnemyController] MoveTowards called while another move is active. Forcing overwrite.");
@@ -111,7 +113,7 @@ namespace IGI.Enemy
             if (Physics.Raycast(origin, direction, out hit, 50))
             {
                 endPoint = hit.point;
-                Debug.Log(hit.collider.name);
+                //Debug.Log(hit.collider.name);
             }
 
             StartCoroutine(BulletTracerLerp(origin, endPoint)); //  pass origin juga
@@ -155,7 +157,7 @@ namespace IGI.Enemy
 
         private void OnShooting(AnimationEvent animationEvent)
         {
-            Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, default, soundDetection);
+            Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, 5, soundDetection);
             Shoot();
         }
     }
