@@ -11,6 +11,7 @@ namespace IGI.Player
         private readonly Transform playerTransform;
 
         private readonly float moveSpeed;
+        private readonly float sprintSpeed;
         private readonly float crouchSpeed;
         private readonly float rotationSpeed;
         private readonly float acceleration;
@@ -18,6 +19,7 @@ namespace IGI.Player
         private readonly int animCrouchID, animSpeedID, animMotionSpeedID;
 
         private float currentSpeed, targetRotation, rotationVelocity;
+        private bool isCrouch;
 
         public PlayerMove(
             CharacterController controller,
@@ -27,6 +29,7 @@ namespace IGI.Player
             Camera mainCamera,
 
             float moveSpeed,
+            float sprintSpeed,
             float crouchSpeed,
             float rotationSpeed,
             float acceleration,
@@ -40,6 +43,7 @@ namespace IGI.Player
             this.playerTransform = playerTransform;
             this.mainCamera = mainCamera;
             this.moveSpeed = moveSpeed;
+            this.sprintSpeed = sprintSpeed;
             this.crouchSpeed = crouchSpeed;
             this.rotationSpeed = rotationSpeed;
             this.acceleration = acceleration;
@@ -50,7 +54,21 @@ namespace IGI.Player
 
         public void Tick()
         {
-            float targetSpeed = input.crouch ? crouchSpeed : moveSpeed;
+            if(input.crouch)
+            {
+                isCrouch = !isCrouch;
+                input.crouch = false;
+            }
+
+            float targetSpeed = 0f;
+            if(input.sprint)
+            {
+                targetSpeed = sprintSpeed;
+                isCrouch = false;
+            }
+            else if (isCrouch) targetSpeed = crouchSpeed;
+            else targetSpeed = moveSpeed;
+
             if (input.move.sqrMagnitude < 0.001f) targetSpeed = 0;
 
             float currentHorizontalSpeed = new Vector3(controller.velocity.x, 0, controller.velocity.z).magnitude;
@@ -85,7 +103,7 @@ namespace IGI.Player
         {
             animator.SetFloat(animSpeedID, currentSpeed);
             animator.SetFloat(animMotionSpeedID, inputMagnitude);
-            animator.SetBool(animCrouchID, input.crouch);
+            animator.SetBool(animCrouchID, isCrouch);
         }
     }
 }

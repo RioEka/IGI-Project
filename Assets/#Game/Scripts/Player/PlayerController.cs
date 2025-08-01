@@ -10,7 +10,7 @@ namespace IGI.Player
         [SerializeField] private AudioClip[] footstepAudioClips;
 
         [SerializeField, Range(0, 1)] private float footstepAudioVolume = .3f;
-        [SerializeField, Range(.1f, 5)] private float moveSpeed = 3f, crouchSpeed = 2f;
+        [SerializeField, Range(.1f, 5)] private float moveSpeed = 3f, crouchSpeed = 2f, sprintSpeed = 4f;
         [SerializeField, Range(0.0f, 0.3f)] private float rotationSpeed = .12f;
         [SerializeField] private float acceleration = 10f;
 
@@ -31,6 +31,7 @@ namespace IGI.Player
                 transform,
                 mainCamera,
                 moveSpeed,
+                sprintSpeed,
                 crouchSpeed,
                 rotationSpeed,
                 acceleration,
@@ -54,7 +55,7 @@ namespace IGI.Player
 
         private void OnFootstep(AnimationEvent animationEvent)
         {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            //if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
                 if (footstepAudioClips.Length > 0)
                 {
