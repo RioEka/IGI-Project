@@ -14,7 +14,6 @@ namespace IGI.Transition
             if (heard.HasValue)
             {
                 // ini terbaca true
-                Debug.Log("Gg");
                 brain.SetSuspiciousLocation(heard.Value);
                 return true;
             }

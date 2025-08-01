@@ -13,6 +13,7 @@ namespace IGI.Enemy
         [SerializeField] private AudioClip shootAudioClip;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private Transform sightPosition;
+        [SerializeField] private LayerMask targetLayer;
 
         [Range(0, 1)]
         [SerializeField] private float rotationSpeed = .12f;
@@ -23,6 +24,7 @@ namespace IGI.Enemy
 
         public NavMeshAgent Agent => agent;
         public Transform[] Waypoints => waypoints;
+        public SoundDetection SoundDetection => soundDetection;
 
         public float IdleDuration => idleDuration;
         public bool isShoot { get; private set; }
@@ -135,6 +137,11 @@ namespace IGI.Enemy
             }
 
             lineRenderer.enabled = false;
+        }
+
+        public void PlayerCheckInRadius()
+        {
+            var result = soundDetection.EyeOnTarget(targetLayer);
         }
 
         private void AssignAnimationID()

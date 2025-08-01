@@ -8,6 +8,8 @@ namespace IGI.Enemy
 
         public Vector3? LastHeardSound { get; private set; }
 
+        public Collider[] target { get; private set; } = new Collider[1];
+
         private void OnEnable()
         {
             Sound.SoundSystem.RegisterListener(this);
@@ -40,9 +42,19 @@ namespace IGI.Enemy
             return sound;
         }
 
-        public void ClearSound()
+        public Vector3? EyeOnTarget(LayerMask layerMask)
         {
-            LastHeardSound = null;
+            float detectionRadius = 10f;
+            Vector3 eyePosition = transform.position + Vector3.up * 1.5f;
+
+            int hitCount = Physics.OverlapSphereNonAlloc(eyePosition, detectionRadius, target, layerMask);
+
+            if (hitCount > 0)
+            {
+                return target[0].transform.position;
+            }
+
+            return null;
         }
     }
 }

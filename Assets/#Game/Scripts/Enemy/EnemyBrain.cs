@@ -211,6 +211,7 @@ namespace IGI.Enemy
         public float idleTimer { get; set; }
 
         public bool isMovingToLastKnown { get; set; }
+        public float alertTimer { get; set; }
 
         public Vector3? targetIdlePosition { get; set; }
 

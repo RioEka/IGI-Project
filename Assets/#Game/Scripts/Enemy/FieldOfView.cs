@@ -16,6 +16,7 @@ namespace IGI.Enemy
         [SerializeField] private LayerMask targetLayer, nonTargetLayer;
 
         public Transform TargetOnCaught { get; private set; }
+        public Transform TargetNoDelete { get; private set; }
 
         private Mesh viewMesh;
         private MeshFilter viewMeshFilter;
@@ -116,6 +117,7 @@ namespace IGI.Enemy
                         if (!Physics.Raycast(transform.position, dirToTarget, Mathf.Sqrt(sqrDist), nonTargetLayer))
                         {
                             TargetOnCaught = target;
+                            TargetNoDelete = target;
                             //Debug.Log(target.name);
                             break;
                         }

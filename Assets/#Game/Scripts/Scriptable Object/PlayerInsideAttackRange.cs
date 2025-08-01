@@ -9,7 +9,7 @@ namespace IGI.Transition
         {
             if (brain.AttackRange.TargetOnCaught != null)
             {
-                brain.SetSuspiciousLocation(brain.FieldOfView.TargetOnCaught.position);
+                brain.SetSuspiciousLocation(brain.AttackRange.TargetOnCaught.position);
                 return true;
             }
             return false;

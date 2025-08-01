@@ -13,7 +13,7 @@ namespace IGI.Enemy
             brain.stateMemory.alertPosition = brain.suspiciousLocation;
             brain.stateMemory.idleTimer = 0f;
 
-            Debug.Log(brain.name + "EnterAlert");
+            //Debug.Log(brain.name + "EnterAlert");
 
             brain.Controller.LookAt(brain.stateMemory.alertPosition);
 

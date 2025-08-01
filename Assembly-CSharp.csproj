@@ -75,6 +75,7 @@
     <Compile Include="Assets\#Game\Scripts\Scriptable Object\TransitionCondition.cs" />
     <Compile Include="Assets\#Game\Scripts\State Machine\BaseState.cs" />
     <Compile Include="Assets\#Game\Scripts\Player\PlayerController.cs" />
+    <Compile Include="Assets\#Game\Scripts\Manager\GameManager.cs" />
     <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyCombat.cs" />
     <Compile Include="Assets\#Game\Scripts\Enemy\Base\EnemyAwarenessSystem.cs" />
     <Compile Include="Assets\StarterAssets\ThirdPersonController\Scripts\ThirdPersonController.cs" />
