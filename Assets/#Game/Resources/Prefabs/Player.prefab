@@ -588,8 +588,11 @@ MonoBehaviour:
   controller: {fileID: 7032711257367387177}
   input: {fileID: 8510132411223405781}
   animator: {fileID: 8801600737321664418}
+  footstepAudioClips: []
+  footstepAudioVolume: 0.3
   moveSpeed: 2
   crouchSpeed: 1.5
+  sprintSpeed: 4
   rotationSpeed: 0.12
   acceleration: 10
 --- !u!1 &1504108410080504616
