@@ -68,6 +68,7 @@ namespace IGI.Enemy
             if (mem.currentIndex >= mem.investigatePoints.Length)
             {
                 brain.stateMemory.IsStateFinished = true;
+                brain.HasBeenAlerted = false;
                 mem.currentIndex = 0;
                 return;
             }

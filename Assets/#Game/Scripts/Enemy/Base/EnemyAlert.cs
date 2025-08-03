@@ -93,7 +93,7 @@ namespace IGI.Enemy
 
         public override void ExitState(EnemyBrain brain)
         {
-            brain.HasBeenAlerted = false;
+            //brain.HasBeenAlerted = false;
         }
     }
 }
