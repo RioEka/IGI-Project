@@ -27,6 +27,7 @@ namespace IGI.Player
         private Camera mainCamera;
         private PlayerMove playerMove;
 
+        private bool isAttack;
         private int animCrouchID, animSpeedID, animMotionSpeedID, animAttackID;
 
         private void Awake()
@@ -61,6 +62,7 @@ namespace IGI.Player
                 enemy = null;
             }
 
+            if (isAttack) return;
             playerMove.Tick();
         }
 
@@ -82,6 +84,7 @@ namespace IGI.Player
 
         private void TriggerTakedown(Enemy.EnemyController enemy)
         {
+            isAttack = true;
             Vector3 targetPosition = enemy.transform.position + enemy.transform.TransformDirection(relativeOffsetFromEnemy);
             Quaternion targetRotation = Quaternion.LookRotation(enemy.transform.position - transform.position);
 
@@ -109,17 +112,20 @@ namespace IGI.Player
         }
 
         [NaughtyAttributes.Button]
-        public void TakeDamage()
+        public void TakeDamage(Vector3 vector, Rigidbody rigidbody)
         {
             animator.enabled = false;
             foreach (var item in ragdoll)
             {
                 item.isKinematic = false;
+                if (item.Equals(rigidbody)) item.AddForce(vector * 50f, ForceMode.Impulse);
             }
             controller.enabled = false;
             //Manager.EventCallback.OnGameOver(Manager.GameResult.Lose);
             Manager.SceneLoader.Instance.LoadScene(0);
         }
+
+        private void OnDoneAttack() => isAttack = false;
 
         private void OnFootstep(AnimationEvent animationEvent)
         {

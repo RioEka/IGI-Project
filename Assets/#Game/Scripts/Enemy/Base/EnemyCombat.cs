@@ -72,7 +72,6 @@ namespace IGI.Enemy
         {
             if (!brain.stateMemory.isMovingToLastKnown)
             {
-                Debug.Log("Gg");
                 brain.stateMemory.isMovingToLastKnown = true;
                 brain.Controller.Shooting(false);
                 brain.Controller.MoveTowards(brain.suspiciousLocation).OnArrive(() =>

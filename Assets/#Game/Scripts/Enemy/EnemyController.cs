@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.LowLevel;
 
 namespace IGI.Enemy
 {
@@ -122,6 +123,7 @@ namespace IGI.Enemy
 
         private void Shoot()
         {
+            isShoot = false;
             Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, 5, soundDetection);
             Vector3 origin = sightPosition.position;
             Vector3 direction = sightPosition.forward;
@@ -132,13 +134,14 @@ namespace IGI.Enemy
             if (Physics.Raycast(origin, direction, out hit, 50, shootTargetLayer))
             {
                 endPoint = hit.point;
-                if (hit.transform.root.TryGetComponent<Player.PlayerController>(out var player))
+                Debug.Log(hit.collider.name);
+                Player.PlayerController player = hit.collider.GetComponentInParent<Player.PlayerController>();
+                if (player != null)
                 {
                     Vector3 hitDir = (hit.transform.position - transform.position).normalized;
-                    player.TakeDamage();
-                    hit.rigidbody.AddForce(hitDir * 35f, ForceMode.Impulse);
+                    player.TakeDamage(hitDir, hit.rigidbody);
+                    //hit.rigidbody.AddForce(hitDir * 100f, ForceMode.Impulse);
                 }
-                //Debug.Log(hit.collider.name);
             }
             else return;
 
@@ -161,7 +164,6 @@ namespace IGI.Enemy
             }
 
             lineRenderer.enabled = false;
-            isShoot = false;
         }
 
         private void AssignAnimationID()
