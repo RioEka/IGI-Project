@@ -5,12 +5,13 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Investigate", menuName = "SO/Enemy State/Investigate")]
     public class EnemyInvestigate : EnemyBaseState
     {
-        [SerializeField] private float radiusInvestigate = 5f;
+        [SerializeField] private float radiusInvestigate = 5f, moveSpeed = 1.5f;
 
         public override void EnterState(EnemyBrain brain)
         {
             base.EnterState(brain);
 
+            brain.SetMoveSpeed(moveSpeed);
             var mem = brain.stateMemory;
             mem.currentIndex = 0;
             mem.isWaiting = false;

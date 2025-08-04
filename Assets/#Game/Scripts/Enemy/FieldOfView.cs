@@ -5,7 +5,7 @@ using UnityEngine;
 namespace IGI.Enemy
 {
     [ExecuteInEditMode]
-    public class FieldOfView : MonoBehaviour, ITransition
+    public class FieldOfView : MonoBehaviour
     {
         [Range(.1f, 180)]
         [SerializeField] private float viewAngle = 50f;
@@ -14,6 +14,8 @@ namespace IGI.Enemy
         [Min(1)]
         [SerializeField] private int segment = 10;
         [SerializeField] private LayerMask targetLayer, nonTargetLayer;
+        [SerializeField] private Transform headBone;
+        [SerializeField] private Vector3 offset;
 
         public Transform TargetOnCaught { get; private set; }
         public Transform TargetNoDelete { get; private set; }
@@ -32,6 +34,8 @@ namespace IGI.Enemy
 
         private void Update()
         {
+            Quaternion rotationHead = Quaternion.Euler(new(0, headBone.eulerAngles.y, 0));
+            transform.SetPositionAndRotation(headBone.position + offset, rotationHead);
             DrawFieldOfView();
             DetectTarget();
         }
@@ -124,11 +128,6 @@ namespace IGI.Enemy
                     }
                 }
             }
-        }
-
-        public bool TrueCondition()
-        {
-            return TargetOnCaught != null;
         }
     }
 }

@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8438e80b4b6d941bd33fae0aea50cc, type: 3}
   m_Name: Patrol
   m_EditorClassIdentifier: 
+  waitDuration: 3
+  moveSpeed: 1

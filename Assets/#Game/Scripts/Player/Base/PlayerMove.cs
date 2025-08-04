@@ -54,6 +54,8 @@ namespace IGI.Player
 
         public void Tick()
         {
+            if (controller.enabled == false) return;
+
             if(input.crouch)
             {
                 isCrouch = !isCrouch;
@@ -94,6 +96,7 @@ namespace IGI.Player
             }
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, targetRotation, 0.0f) * Vector3.forward;
+
             controller.Move(targetDirection.normalized * (currentSpeed * Time.deltaTime));
 
             SetAnimation(inputMagnitude);

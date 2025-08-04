@@ -5,11 +5,13 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Patrol", menuName = "SO/Enemy State/Patrol")]
     public class EnemyPatrol : EnemyBaseState
     {
-        [SerializeField] private float waitDuration = 3f;
+        [SerializeField] private float waitDuration = 3f, moveSpeed = 1.5f;
 
         public override void EnterState(EnemyBrain brain)
         {
             base.EnterState(brain);
+
+            brain.SetMoveSpeed(moveSpeed);
             brain.stateMemory.currentWaypointIndex = 0;
             brain.stateMemory.waitTimer = 0f;
             MoveToNextWaypoint(brain);

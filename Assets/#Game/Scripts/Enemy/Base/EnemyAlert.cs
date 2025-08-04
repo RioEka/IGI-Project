@@ -5,12 +5,13 @@ namespace IGI.Enemy
     [CreateAssetMenu(fileName = "Alert", menuName = "SO/Enemy State/Alert")]
     public class EnemyAlert : EnemyBaseState
     {
-        [SerializeField] private float proximityCheckDistance = 2f;
+        [SerializeField] private float proximityCheckDistance = 2f, moveSpeed = 1.5f;
 
         public override void EnterState(EnemyBrain brain)
         {
             base.EnterState(brain);
 
+            brain.SetMoveSpeed(moveSpeed);
             brain.Controller.CancelCurrentMove();
             brain.stateMemory.alertPosition = brain.suspiciousLocation;
             brain.stateMemory.idleTimer = 0f;
@@ -21,6 +22,7 @@ namespace IGI.Enemy
 
             if (brain.HasBeenAlerted)
             {
+                brain.SetMoveSpeed(4);
                 MoveToAlertLocation(brain);
             }
         }
@@ -38,7 +40,7 @@ namespace IGI.Enemy
                 {
                     brain.Controller.LookAt(player.position);
                     brain.SetSuspiciousLocation(player.position);
-                    // Debug.LogWarning($"{brain.name}: Player sangat dekat dalam state ALERT!");
+                    //Debug.LogWarning($"{brain.name}: Player sangat dekat dalam state ALERT!");
                     //return;
                 }
             }
@@ -57,17 +59,19 @@ namespace IGI.Enemy
                 alertMem.idleTimer += Time.deltaTime;
                 if (alertMem.idleTimer >= brain.Controller.IdleDuration)
                 {
+                    brain.SetMoveSpeed(2);
                     brain.HasBeenAlerted = true;
                     MoveToAlertLocation(brain);
                 }
             }
             else
             {
-                //if ((brain.suspiciousLocation - alertMem.alertPosition).sqrMagnitude > 0.5f)
-                //{
-                //    alertMem.alertPosition = brain.suspiciousLocation;
-                //}
+                if ((brain.suspiciousLocation - alertMem.alertPosition).sqrMagnitude > 0.5f)
+                {
+                    alertMem.alertPosition = brain.suspiciousLocation;
                     MoveToAlertLocation(brain);
+                    brain.SetMoveSpeed(4);
+                }
             }
         }
 

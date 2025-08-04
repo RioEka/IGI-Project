@@ -7,6 +7,7 @@ namespace IGI.Player
         [SerializeField] private CharacterController controller;
         [SerializeField] private PlayerInput input;
         [SerializeField] private Animator animator;
+        [SerializeField] private Rigidbody[] ragdoll;
         [SerializeField] private AudioClip[] footstepAudioClips;
 
         [SerializeField, Range(0, 1)] private float footstepAudioVolume = .3f;
@@ -51,6 +52,18 @@ namespace IGI.Player
             animCrouchID = Animator.StringToHash("Crouch");
             animSpeedID = Animator.StringToHash("Speed");
             animMotionSpeedID = Animator.StringToHash("MotionSpeed");
+        }
+
+        [NaughtyAttributes.Button]
+        public void TakeDamage()
+        {
+            animator.enabled = false;
+            foreach (var item in ragdoll)
+            {
+                item.isKinematic = false;
+            }
+            controller.enabled = false;
+
         }
 
         private void OnFootstep(AnimationEvent animationEvent)

@@ -13,7 +13,7 @@ namespace IGI.Enemy
         [SerializeField] private AudioClip shootAudioClip;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private Transform sightPosition;
-        [SerializeField] private LayerMask targetLayer;
+        [SerializeField] private LayerMask shootTargetLayer;
 
         [Range(0, 1)]
         [SerializeField] private float rotationSpeed = .12f;
@@ -22,7 +22,6 @@ namespace IGI.Enemy
         [Range(0, 1)]
         [SerializeField] private float footstepAudioVolume = .3f;
 
-        public NavMeshAgent Agent => agent;
         public Transform[] Waypoints => waypoints;
         public SoundDetection SoundDetection => soundDetection;
 
@@ -32,14 +31,16 @@ namespace IGI.Enemy
         private EnemyMove move;
         private Vector3 lookTarget;
         private SoundDetection soundDetection;
+        private EnemyBrain brain;
 
-        private int animSpeedID, animShootID;
+        private int animSpeedID, animShootID, animAlertID;
         private float rotationVelocity;
 
         private void Awake()
         {
             AssignAnimationID();
             agent.updateRotation = false;
+            brain = GetComponent<EnemyBrain>();
             soundDetection = GetComponent<SoundDetection>();
         }
 
@@ -47,6 +48,7 @@ namespace IGI.Enemy
         {
             animator.SetFloat(animSpeedID, agent.velocity.magnitude);
             animator.SetBool(animShootID, isShoot);
+            animator.SetBool(animAlertID, brain.HasBeenAlerted);
 
             if (lookTarget != Vector3.zero) RotateTowardsTarget();
             if(agent.desiredVelocity != Vector3.zero) RotateTowards(agent.desiredVelocity);
@@ -75,7 +77,7 @@ namespace IGI.Enemy
 
             if (move != null)
             {
-                Debug.LogWarning("[EnemyController] MoveTowards called while another move is active. Forcing overwrite.");
+                Debug.LogWarning($"[EnemyController: {name}] MoveTowards called while another move is active. Forcing overwrite.");
                 agent.ResetPath();
             }
 
@@ -106,17 +108,25 @@ namespace IGI.Enemy
 
         private void Shoot()
         {
+            Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, 5, soundDetection);
             Vector3 origin = sightPosition.position;
             Vector3 direction = sightPosition.forward;
 
             RaycastHit hit;
             Vector3 endPoint = origin + direction * 50;
 
-            if (Physics.Raycast(origin, direction, out hit, 50))
+            if (Physics.Raycast(origin, direction, out hit, 50, shootTargetLayer))
             {
                 endPoint = hit.point;
+                if (hit.transform.root.TryGetComponent<Player.PlayerController>(out var player))
+                {
+                    Vector3 hitDir = (hit.transform.position - transform.position).normalized;
+                    player.TakeDamage();
+                    hit.rigidbody.AddForce(hitDir * 35f, ForceMode.Impulse);
+                }
                 //Debug.Log(hit.collider.name);
             }
+            else return;
 
             StartCoroutine(BulletTracerLerp(origin, endPoint)); //  pass origin juga
         }
@@ -137,17 +147,14 @@ namespace IGI.Enemy
             }
 
             lineRenderer.enabled = false;
-        }
-
-        public void PlayerCheckInRadius()
-        {
-            var result = soundDetection.EyeOnTarget(targetLayer);
+            isShoot = false;
         }
 
         private void AssignAnimationID()
         {
             animSpeedID = Animator.StringToHash("Speed");
             animShootID = Animator.StringToHash("Shoot");
+            animAlertID = Animator.StringToHash("Alert");
         }
 
         private void OnFootstep(AnimationEvent animationEvent)
@@ -164,7 +171,6 @@ namespace IGI.Enemy
 
         private void OnShooting(AnimationEvent animationEvent)
         {
-            Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, 5, soundDetection);
             Shoot();
         }
     }

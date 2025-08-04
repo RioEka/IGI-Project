@@ -105,6 +105,8 @@ namespace IGI.Enemy
             return null;
         }
 
+        public void SetMoveSpeed(float moveSpeed) => controller.SetMoveSpeed(moveSpeed);
+
         public void SetTask(AITask task, bool allowInterruption = true)
         {
             if (allowInterruption)

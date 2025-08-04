@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Investigate
   m_EditorClassIdentifier: 
   radiusInvestigate: 5
+  moveSpeed: 1

@@ -7,7 +7,7 @@ namespace IGI.Enemy
     {
         [SerializeField] private float radiusAwarenessInfluence = 10f;
         [SerializeField] private float alertInterval = 0.5f;
-        [SerializeField] private float proximityCheckDistance = 2f;
+        [SerializeField] private float proximityCheckDistance = 2f, moveSpeed = 4f;
 
         public override void EnterState(EnemyBrain brain)
         {
@@ -15,6 +15,7 @@ namespace IGI.Enemy
             brain.stateMemory.isMovingToLastKnown = false;
             brain.HasBeenAlerted = true;
             brain.stateMemory.alertTimer = 0f;
+            brain.SetMoveSpeed(moveSpeed);
 
             TryChaseTarget(brain);
         }
@@ -37,7 +38,6 @@ namespace IGI.Enemy
                 return;
             }
 
-            // -- Check proximity to player if not in FOV --
             var playerTransform = brain.FieldOfView.TargetNoDelete;
             if (playerTransform != null)
             {
@@ -72,6 +72,7 @@ namespace IGI.Enemy
         {
             if (!brain.stateMemory.isMovingToLastKnown)
             {
+                Debug.Log("Gg");
                 brain.stateMemory.isMovingToLastKnown = true;
                 brain.Controller.Shooting(false);
                 brain.Controller.MoveTowards(brain.suspiciousLocation).OnArrive(() =>
