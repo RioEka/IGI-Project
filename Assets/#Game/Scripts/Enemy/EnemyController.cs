@@ -14,6 +14,7 @@ namespace IGI.Enemy
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private Transform sightPosition;
         [SerializeField] private LayerMask shootTargetLayer;
+        [SerializeField] private Interaction.Interactable dropItem;
 
         [Range(0, 1)]
         [SerializeField] private float rotationSpeed = .12f;
@@ -48,7 +49,7 @@ namespace IGI.Enemy
         {
             animator.SetFloat(animSpeedID, agent.velocity.magnitude);
             animator.SetBool(animShootID, isShoot);
-            animator.SetBool(animAlertID, brain.HasBeenAlerted);
+            //animator.SetBool(animAlertID, brain.HasBeenAlerted);
 
             if (lookTarget != Vector3.zero) RotateTowardsTarget();
             if(agent.desiredVelocity != Vector3.zero) RotateTowards(agent.desiredVelocity);
@@ -84,6 +85,19 @@ namespace IGI.Enemy
             move = new(agent, destination);
             move.onComplete = (self) => move = null;
             return move;
+        }
+
+        public void TakeDamage()
+        {
+            enabled = false;
+            brain.enabled = false;
+            brain.FieldOfView.ViewMeshRenderer.enabled = false;
+            brain.AttackRange.ViewMeshRenderer.enabled = false;
+
+            animator.SetTrigger("Dead");
+
+            Interaction.Interactable interactable = Instantiate(dropItem, transform.position, Quaternion.identity);
+            interactable.gameObject.SetActive(true);
         }
 
         public void CancelCurrentMove()

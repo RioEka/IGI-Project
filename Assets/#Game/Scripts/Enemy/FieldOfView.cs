@@ -22,11 +22,13 @@ namespace IGI.Enemy
 
         private Mesh viewMesh;
         private MeshFilter viewMeshFilter;
+        public MeshRenderer ViewMeshRenderer { get; private set; }
         private Collider[] targetsBuffer = new Collider[5];
 
         private void Awake()
         {
             viewMeshFilter = GetComponent<MeshFilter>();
+            ViewMeshRenderer = GetComponent<MeshRenderer>();
             viewMesh = new();
             viewMesh.name = "Field Of View";
             viewMeshFilter.mesh = viewMesh;

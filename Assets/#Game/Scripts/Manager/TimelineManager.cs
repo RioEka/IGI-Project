@@ -26,7 +26,7 @@ namespace IGI.Manager
             }
         }
 
-        private void PlayCutscene(int index)
+        public void PlayCutscene(int index)
         {
             this.index = index;
             playableDirector[index].gameObject.SetActive(true);

@@ -13,6 +13,8 @@ namespace IGI.Manager
         [SerializeField] private Image fadeMaterial;
         [SerializeField] private float fadeDuration = 1f;
 
+        private AsyncOperation asyncLoad;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -27,6 +29,9 @@ namespace IGI.Manager
 
         public void LoadScene(int sceneIndex)
         {
+            // Load async
+            asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
+            asyncLoad.allowSceneActivation = false;
             StartCoroutine(FadeAndLoadScene(sceneIndex));
         }
 
@@ -34,10 +39,6 @@ namespace IGI.Manager
         {
             // Fade out (alpha 0 ? 1)
             yield return fadeMaterial.DOFade(1f, fadeDuration).SetEase(Ease.InOutSine).WaitForCompletion();
-
-            // Load async
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
-            asyncLoad.allowSceneActivation = false;
 
             while (!asyncLoad.isDone)
             {

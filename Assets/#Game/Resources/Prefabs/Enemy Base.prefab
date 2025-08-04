@@ -1092,6 +1092,7 @@ GameObject:
   - component: {fileID: 328687618118252916}
   - component: {fileID: 2694090244577227904}
   - component: {fileID: 5581405993436232110}
+  - component: {fileID: 2680696822637648081}
   m_Layer: 0
   m_Name: Enemy Base
   m_TagString: Player
@@ -1241,6 +1242,7 @@ MonoBehaviour:
   shootTargetLayer:
     serializedVersion: 2
     m_Bits: 64
+  dropItem: {fileID: 0}
   rotationSpeed: 0.12
   idleDuration: 3
   footstepAudioVolume: 0.3
@@ -1300,6 +1302,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hearingRadius: 3
+--- !u!65 &2680696822637648081
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805832641555628956}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: -0.1}
 --- !u!1 &2089169568600371190
 GameObject:
   m_ObjectHideFlags: 0

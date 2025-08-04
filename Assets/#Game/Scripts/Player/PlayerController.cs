@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using DG.Tweening;
+
 namespace IGI.Player
 {
     public class PlayerController : MonoBehaviour
@@ -10,15 +12,22 @@ namespace IGI.Player
         [SerializeField] private Rigidbody[] ragdoll;
         [SerializeField] private AudioClip[] footstepAudioClips;
 
+        [Header("Takedown")]
+        private Vector3 relativeOffsetFromEnemy = new Vector3(0.07083f, 0f, -0.54896f);
+        [SerializeField] private float moveDuration = 0.25f;
+        [SerializeField] private float rotateDuration = 0.2f;
+
+        [Header("")]
         [SerializeField, Range(0, 1)] private float footstepAudioVolume = .3f;
         [SerializeField, Range(.1f, 5)] private float moveSpeed = 3f, crouchSpeed = 2f, sprintSpeed = 4f;
         [SerializeField, Range(0.0f, 0.3f)] private float rotationSpeed = .12f;
         [SerializeField] private float acceleration = 10f;
 
+        private Enemy.EnemyController enemy;
         private Camera mainCamera;
         private PlayerMove playerMove;
 
-        private int animCrouchID, animSpeedID, animMotionSpeedID;
+        private int animCrouchID, animSpeedID, animMotionSpeedID, animAttackID;
 
         private void Awake()
         {
@@ -44,7 +53,51 @@ namespace IGI.Player
 
         private void Update()
         {
+            if(input.attack)
+            {
+                input.attack = false;
+                if (enemy == null) return;
+                TriggerTakedown(enemy);
+                enemy = null;
+            }
+
             playerMove.Tick();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if(other.TryGetComponent<Enemy.EnemyController>(out var enemy))
+            {
+                this.enemy = enemy;
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.TryGetComponent<Enemy.EnemyController>(out var enemy))
+            {
+                this.enemy = null;
+            }
+        }
+
+        private void TriggerTakedown(Enemy.EnemyController enemy)
+        {
+            Vector3 targetPosition = enemy.transform.position + enemy.transform.TransformDirection(relativeOffsetFromEnemy);
+            Quaternion targetRotation = Quaternion.LookRotation(enemy.transform.position - transform.position);
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOMove(targetPosition, moveDuration).SetEase(Ease.InOutSine));
+            seq.Join(transform.DORotateQuaternion(targetRotation, rotateDuration));
+            seq.OnComplete(() =>
+            {
+                PlayTakedownAnimation(enemy);
+            });
+        }
+
+        private void PlayTakedownAnimation(Enemy.EnemyController enemy)
+        {
+            animator.SetTrigger(animAttackID);
+            enemy.TakeDamage();
         }
 
         private void AssignAnimationID()
@@ -52,6 +105,7 @@ namespace IGI.Player
             animCrouchID = Animator.StringToHash("Crouch");
             animSpeedID = Animator.StringToHash("Speed");
             animMotionSpeedID = Animator.StringToHash("MotionSpeed");
+            animAttackID = Animator.StringToHash("Attack");
         }
 
         [NaughtyAttributes.Button]
@@ -63,7 +117,8 @@ namespace IGI.Player
                 item.isKinematic = false;
             }
             controller.enabled = false;
-
+            //Manager.EventCallback.OnGameOver(Manager.GameResult.Lose);
+            Manager.SceneLoader.Instance.LoadScene(0);
         }
 
         private void OnFootstep(AnimationEvent animationEvent)
