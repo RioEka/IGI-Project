@@ -1,16 +1,35 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class UIManager : MonoBehaviour
+public class UINavigator : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [Header("Panels")]
+    public GameObject mainMenuPanel;
+    public GameObject creditsPanel;
+
+    // Load scene by name
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+    }
     void Start()
     {
-        
+        ShowMainMenu();
     }
-
-    // Update is called once per frame
-    void Update()
+    public void ShowMainMenu()
     {
-        
+        mainMenuPanel.SetActive(true);
+        creditsPanel.SetActive(false);
+    }
+    public void ShowCredits()
+    {
+        mainMenuPanel.SetActive(false);
+        creditsPanel.SetActive(true);
+    }
+    // Quit game
+    public void QuitGame()
+    {
+        Debug.Log("Quit Game");
+        Application.Quit();
     }
 }
