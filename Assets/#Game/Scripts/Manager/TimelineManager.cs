@@ -21,7 +21,8 @@ namespace IGI.Manager
         {
             if (playableDirector[index].state == PlayState.Paused)
             {
-                gameObject.SetActive(false);
+                //gameObject.SetActive(false);
+                playableDirector[index].gameObject.SetActive(false);
                 cameraCutscene.enabled = false;
             }
         }

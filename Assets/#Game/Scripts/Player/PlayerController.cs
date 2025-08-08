@@ -26,6 +26,7 @@ namespace IGI.Player
         private Enemy.EnemyController enemy;
         private Camera mainCamera;
         private PlayerMove playerMove;
+        private Outline outline;
 
         private bool isAttack;
         private int animCrouchID, animSpeedID, animMotionSpeedID, animAttackID;
@@ -50,6 +51,8 @@ namespace IGI.Player
                 animSpeedID,
                 animMotionSpeedID
             );
+
+            outline = GetComponent<Outline>();
         }
 
         private void Update()
@@ -59,6 +62,7 @@ namespace IGI.Player
                 input.attack = false;
                 if (enemy == null) return;
                 TriggerTakedown(enemy);
+                EnableOutline(false);
                 enemy = null;
             }
 
@@ -71,6 +75,7 @@ namespace IGI.Player
             if(other.TryGetComponent<Enemy.EnemyController>(out var enemy))
             {
                 this.enemy = enemy;
+                enemy.Outline.enabled = true;
             }
         }
 
@@ -78,15 +83,22 @@ namespace IGI.Player
         {
             if (other.TryGetComponent<Enemy.EnemyController>(out var enemy))
             {
+                enemy.Outline.enabled = false;
                 this.enemy = null;
             }
+        }
+
+        private void EnableOutline(bool enabled)
+        {
+            if(outline == null) return;
+            outline.enabled = enabled;
         }
 
         private void TriggerTakedown(Enemy.EnemyController enemy)
         {
             isAttack = true;
             Vector3 targetPosition = enemy.transform.position + enemy.transform.TransformDirection(relativeOffsetFromEnemy);
-            Quaternion targetRotation = Quaternion.LookRotation(enemy.transform.position - transform.position);
+            Quaternion targetRotation = Quaternion.LookRotation(enemy.transform.forward, Vector3.up);
 
             Sequence seq = DOTween.Sequence();
             seq.Append(transform.DOMove(targetPosition, moveDuration).SetEase(Ease.InOutSine));
@@ -111,21 +123,25 @@ namespace IGI.Player
             animAttackID = Animator.StringToHash("Attack");
         }
 
-        [NaughtyAttributes.Button]
         public void TakeDamage(Vector3 vector, Rigidbody rigidbody)
         {
             animator.enabled = false;
             foreach (var item in ragdoll)
             {
                 item.isKinematic = false;
-                if (item.Equals(rigidbody)) item.AddForce(vector * 50f, ForceMode.Impulse);
+                if (item.Equals(rigidbody)) item.AddForce(vector * 35f, ForceMode.Impulse);
             }
             controller.enabled = false;
             //Manager.EventCallback.OnGameOver(Manager.GameResult.Lose);
-            Manager.SceneLoader.Instance.LoadScene(0);
+            //Manager.SceneLoader.Instance.LoadScene(0);
         }
 
-        private void OnDoneAttack() => isAttack = false;
+        private void OnDoneAttack()
+        {
+            animator.ResetTrigger(animAttackID);
+            isAttack = false;
+            EnableOutline(true);
+        }
 
         private void OnFootstep(AnimationEvent animationEvent)
         {

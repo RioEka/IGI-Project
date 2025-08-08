@@ -26,6 +26,7 @@ namespace IGI.Enemy
 
         public Transform[] Waypoints => waypoints;
         public SoundDetection SoundDetection => soundDetection;
+        public Outline Outline => outline;
 
         public float IdleDuration => idleDuration;
         public bool isShoot { get; private set; }
@@ -34,6 +35,7 @@ namespace IGI.Enemy
         private Vector3 lookTarget;
         private SoundDetection soundDetection;
         private EnemyBrain brain;
+        private Outline outline;
 
         private int animSpeedID, animShootID, animAlertID;
         private float rotationVelocity;
@@ -44,13 +46,14 @@ namespace IGI.Enemy
             agent.updateRotation = false;
             brain = GetComponent<EnemyBrain>();
             soundDetection = GetComponent<SoundDetection>();
+            outline = GetComponent<Outline>();
         }
 
         private void Update()
         {
             animator.SetFloat(animSpeedID, agent.velocity.magnitude);
             animator.SetBool(animShootID, isShoot);
-            //animator.SetBool(animAlertID, brain.HasBeenAlerted);
+            animator.SetBool(animAlertID, brain.HasBeenAlerted);
 
             if (lookTarget != Vector3.zero) RotateTowardsTarget();
             if(agent.desiredVelocity != Vector3.zero) RotateTowards(agent.desiredVelocity);
@@ -96,6 +99,7 @@ namespace IGI.Enemy
             brain.AttackRange.ViewMeshRenderer.enabled = false;
 
             animator.SetTrigger("Dead");
+            outline.enabled = false;
 
             Interaction.Interactable interactable = Instantiate(dropItem, transform.position, Quaternion.identity);
             interactable.gameObject.SetActive(true);
@@ -123,8 +127,8 @@ namespace IGI.Enemy
 
         private void Shoot()
         {
-            isShoot = false;
             Sound.SoundSystem.EmitSound(shootAudioClip, transform.position, footstepAudioVolume, 5, soundDetection);
+
             Vector3 origin = sightPosition.position;
             Vector3 direction = sightPosition.forward;
 
@@ -134,18 +138,19 @@ namespace IGI.Enemy
             if (Physics.Raycast(origin, direction, out hit, 50, shootTargetLayer))
             {
                 endPoint = hit.point;
+
                 Debug.Log(hit.collider.name);
+
                 Player.PlayerController player = hit.collider.GetComponentInParent<Player.PlayerController>();
                 if (player != null)
                 {
                     Vector3 hitDir = (hit.transform.position - transform.position).normalized;
                     player.TakeDamage(hitDir, hit.rigidbody);
-                    //hit.rigidbody.AddForce(hitDir * 100f, ForceMode.Impulse);
                 }
             }
-            else return;
 
-            StartCoroutine(BulletTracerLerp(origin, endPoint)); //  pass origin juga
+            StartCoroutine(BulletTracerLerp(origin, endPoint));
+            isShoot = false;
         }
 
         private System.Collections.IEnumerator BulletTracerLerp(Vector3 origin, Vector3 target)
@@ -155,7 +160,7 @@ namespace IGI.Enemy
 
             while (elapsedTime < 1f)
             {
-                elapsedTime += Time.deltaTime * 8f;
+                elapsedTime += Time.deltaTime * 4f;
                 Vector3 currentPos = Vector3.Lerp(origin, target, elapsedTime);
 
                 lineRenderer.SetPosition(0, origin); //  static start point
